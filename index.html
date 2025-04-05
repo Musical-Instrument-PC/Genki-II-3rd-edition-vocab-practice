@@ -3,20 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Japanese Vocab Quiz</title>
+  <title>Japanese Vocab Quiz for Genki II 3rd edition</title>
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
     body {
       font-family: Arial, sans-serif;
       background: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 20px;
     }
     .container {
+      width: 90%;
       max-width: 600px;
-      margin: auto;
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
     select, input, button {
       width: 100%;
@@ -25,6 +34,7 @@
       font-size: 16px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
     button {
       background-color: #007BFF;
@@ -97,24 +107,39 @@
 
     function showQuestion() {
       const q = vocabList[currentIndex];
-      const prompt = (q.vocab !== q.kana) ? `What is the kana for: ${q.vocab}` : `What is the Japanese word for: ${q.english}`;
+      let prompt = "";
+      // If kana is provided, assume vocab contains kanji.
+      if(q.kana.trim() !== "") {
+        prompt = `What is the kana for: ${q.vocab}`;
+      } else {
+        prompt = `What is the Japanese word for: ${q.english}`;
+      }
       document.getElementById("question").textContent = prompt;
       document.getElementById("answerInput").value = "";
       document.getElementById("feedback").textContent = "";
       document.querySelector("#quiz button:nth-of-type(2)").style.display = "none";
+      // Enable submit button for new question.
+      document.querySelector("#quiz button:nth-of-type(1)").disabled = false;
     }
 
     function checkAnswer() {
       const userInput = document.getElementById("answerInput").value.trim();
       const q = vocabList[currentIndex];
-      const answer = (q.vocab !== q.kana) ? q.kana : q.vocab;
+      let answer = "";
+      // If kana is provided, that's the answer; otherwise, use the vocab.
+      if(q.kana.trim() !== "") {
+        answer = q.kana;
+      } else {
+        answer = q.vocab;
+      }
       total++;
+      // Disable submit button to prevent multiple submissions.
+      document.querySelector("#quiz button:nth-of-type(1)").disabled = true;
       if (userInput === answer) {
         correct++;
         document.getElementById("feedback").textContent = "Correct!";
         document.getElementById("feedback").style.color = "green";
       } else {
-        // Display the feedback in red but the answer itself in black and italic
         document.getElementById("feedback").innerHTML = `Incorrect. Correct answer is: <span style="color:black; font-style:italic;">${answer}</span>`;
         document.getElementById("feedback").style.color = "red";
       }
