@@ -114,7 +114,8 @@
         document.getElementById("feedback").textContent = "Correct!";
         document.getElementById("feedback").style.color = "green";
       } else {
-        document.getElementById("feedback").innerHTML = `Incorrect. Correct answer is: <b>${answer}</b>`;
+        // Display the feedback in red but the answer itself in black and italic
+        document.getElementById("feedback").innerHTML = `Incorrect. Correct answer is: <span style="color:black; font-style:italic;">${answer}</span>`;
         document.getElementById("feedback").style.color = "red";
       }
       document.getElementById("score").textContent = `Score: ${correct} / ${total}`;
