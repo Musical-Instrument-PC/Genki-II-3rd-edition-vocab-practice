@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japanese Vocab Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Japanese Vocab Quiz</h2>
+
+    <label for="lessonSelect">Choose a Lesson:</label>
+    <select id="lessonSelect">
+      <option value="lesson_13.csv">Lesson 13</option>
+      <option value="lesson_14.csv">Lesson 14</option>
+      <option value="lesson_15.csv">Lesson 15</option>
+      <option value="lesson_16.csv">Lesson 16</option>
+      <option value="lesson_17.csv">Lesson 17</option>
+      <option value="lesson_18.csv">Lesson 18</option>
+    </select>
+    <button onclick="loadLesson()">Start Quiz</button>
+
+    <div id="quiz" style="display:none;">
+      <p id="question"></p>
+      <input type="text" id="answerInput" placeholder="Type your answer here..." />
+      <button onclick="checkAnswer()">Submit</button>
+      <button onclick="nextQuestion()" style="display:none; background-color: #28a745;">Next</button>
+      <p id="feedback"></p>
+      <p id="score"></p>
+    </div>
+  </div>
+
+  <script>
+    let vocabList = [];
+    let currentIndex = 0;
+    let correct = 0;
+    let total = 0;
+
+    async function loadLesson() {
+      const selectedFile = document.getElementById("lessonSelect").value;
+      const response = await fetch(selectedFile);
+      const text = await response.text();
+      const lines = text.trim().split('\n');
+      vocabList = lines.slice(1).map(line => {
+        const [vocab, kana, english] = line.split(',');
+        return { vocab, kana, english };
+      });
+      shuffle(vocabList);
+      currentIndex = 0;
+      correct = 0;
+      total = 0;
+      document.getElementById("quiz").style.display = "block";
+      showQuestion();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function showQuestion() {
+      const q = vocabList[currentIndex];
+      const prompt = (q.vocab !== q.kana) ? `What is the kana for: ${q.vocab}` : `What is the Japanese word for: ${q.english}`;
+      document.getElementById("question").textContent = prompt;
+      document.getElementById("answerInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.querySelector("#quiz button:nth-of-type(2)").style.display = "none";
+    }
+
+    function checkAnswer() {
+      const userInput = document.getElementById("answerInput").value.trim();
+      const q = vocabList[currentIndex];
+      const answer = (q.vocab !== q.kana) ? q.kana : q.vocab;
+      total++;
+      if (userInput === answer) {
+        correct++;
+        document.getElementById("feedback").textContent = "Correct!";
+        document.getElementById("feedback").style.color = "green";
+      } else {
+        document.getElementById("feedback").innerHTML = `Incorrect. Correct answer is: <b>${answer}</b>`;
+        document.getElementById("feedback").style.color = "red";
+      }
+      document.getElementById("score").textContent = `Score: ${correct} / ${total}`;
+      document.querySelector("#quiz button:nth-of-type(2)").style.display = "block";
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex >= vocabList.length) {
+        shuffle(vocabList);
+        currentIndex = 0;
+      }
+      showQuestion();
+    }
+  </script>
+</body>
+</html>
